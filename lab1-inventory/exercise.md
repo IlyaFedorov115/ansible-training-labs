@@ -17,6 +17,8 @@
 |dallas_nodes|sql_db2, web_node2, web_node3|
 |us_nodes|boston_nodes, dallas_nodes|
 
+
+### Решение
 ```
 # web 
 web_node1 ansible_host=web01.xyz.com ansible_connection=winrm ansible_user=administrator ansible_password=Win$Pass
