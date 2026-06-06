@@ -1,0 +1,53 @@
+- Приведенный playbook пытается запустить службу `mysql` на `all_servers`. Используй условие `when`, чтобы запустить task в случае, если `ansible_host` является сервером баз данных.
+
+##### Решение
+
+```
+-
+    name: 'Execute a script on all web server nodes'
+    hosts: all_servers
+    tasks:
+        -
+            service: 'name=mysql state=started'
+            when: 'ansible_host=="server4.company.com"'
+```
+
+- В этом playbook определена переменная с названием `age`. Два tasks выполняют команды, которые выводят на экран `I am a child` и `I am an Adult`. Используй условия `when`, чтобы в зависимости от переменной `age` выполнялся нужный task. А именно, если возраст `< 18` это ребенок, а если `>= 18`, то взрослый.
+##### Решение
+
+```
+-
+    name: 'Am I an Adult or a Child?'
+    hosts: localhost
+    vars:
+        age: 25
+    tasks:
+        -
+            command: 'echo "I am a Child"'
+            when: 'age < 18'
+        -
+            command: 'echo "I am an Adult"'
+            when: 'age >= 18'
+```
+
+- В этом playbook мы хотим, чтобы происходило добавление новой строки в файл `/etc/resolv.conf` для `nameserver`.
+Сначала мы запускаем команду с помощью модуля `shell`, чтобы получить содержимое файла `/etc/resolv.conf`, а потом добавляем в него новую линию, содержащую данные для разрешения имени этого сервера. Однако, при многократном запуске данный playbook будет каждый раз вносить дубликаты этой строки в файл `resolv.conf`.
+1. Добавь директиву `register`, которая сохранит вывод первой команды в переменную `command_output`
+2. Теперь добавь `условие` во вторую команду, чтобы проверить, содержится ли уже в выводе первой команды сервер имен `10.0.250.10`. Используй условие `command_output.stdout.find(<IP>) == -1`
+
+> ИНФО: Лучший способ делать такие вещи - это модуль `lineinfile`. Не используй это в своих рабочих решениях, мы просто тренируемся.
+
+##### Решение
+
+```
+-
+    name: 'Add name server entry if not already entered'
+    hosts: localhost
+    tasks:
+        -
+            shell: 'cat /etc/resolv.conf'
+            register: command_output
+        -
+            shell: 'echo "nameserver 10.0.250.10" >> /etc/resolv.conf'
+            when: 'command_output.stdout.find("10.0.250.10") == -1'
+```
